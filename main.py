@@ -18,7 +18,6 @@ def openDiscord():
     moveTo(left+width/2, top+height/2)
     click()
     
-
 # Update discord status
 def updateStatus():
     moveTo(105, screenHeight-85)
@@ -28,7 +27,25 @@ def updateStatus():
     hotkey('ctrl', 'a')
     press('backspace') 
     write(random.choice(statuses))
-    sleep(1)
+    left, top, width, height = locateOnScreen('img/status.png', confidence=0.8)
+    moveTo(left+width/2, top+height/2+45)
+    click()
+    moveTo(left+width/2, top+height/2+272)
+    click()
+    left, top, width, height = locateOnScreen('img/save_status.png', confidence=0.8)
+    moveTo(left+width/2, top+height/2)
+    click()
+    moveTo(screenWidth/2, screenHeight/2-51) # Move to center of screen
+
+async def updateStatusLoop():
+    moveTo(105, screenHeight-85)
+    click()
+    moveTo(205, screenHeight-192)
+    click()
+    hotkey('ctrl', 'a')
+    press('backspace') 
+    write(random.choice(statuses))
+    await asyncio.sleep(1)
     left, top, width, height = locateOnScreen('img/status.png', confidence=0.8)
     moveTo(left+width/2, top+height/2+45)
     click()
@@ -50,9 +67,8 @@ if __name__ == "__main__":
     openDiscord()
     # Infinite status update
     # a = asyncio.get_event_loop()
-    # a.create_task(updateStatus())
+    # a.create_task(updateStatusLoop())
     # a.run_forever()
-    # Remember to add proper async and await where needed
 
     # Single status update
     updateStatus()
