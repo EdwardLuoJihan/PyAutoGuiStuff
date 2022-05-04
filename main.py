@@ -1,141 +1,55 @@
 # Import modules
-from pyautogui import *
+import pyautogui as pagui
 from time import *
 import random
 import asyncio
 import requests
 
 # Initialize variables
-screenWidth, screenHeight = size()
-currentMouseX, currentMouseY = position()
-statuses = ["This status was made by PyAutoGUI!", "This status was also made by PyAutoGUI!", "PyAutoGUI is awesome!"]
+screenWidth, screenHeight = pagui.size()
+currentMouseX, currentMouseY = pagui.position()
+statuses = ["Depressing status #1", "Depressing status #2", "Depressing status #3", "Depressing status #4", "Depressing status #5", "Depressing status #6", "Depressing status #7", "Depressing status #8", "Depressing status #9", "Depressing status #10"]
 _status = random.choice(statuses)
 
+# Import functions
+from discord import *
+from spotify import *
+from btd6 import *
+
 # PAG initialize
-moveTo(screenWidth/2, screenHeight/2-51) # Move to center of screen
+pagui.moveTo(screenWidth/2, screenHeight/2-51) # Move to center of screen
 
-# Open discord
-def openDiscord():
-    left, top, width, height = locateOnScreen('img/discord.png', confidence=0.7)
-    moveTo(left+width/2, top+height/2)
-    click()
-    sleep(0.5)
-    if locateOnScreen('img/discord_open.png', confidence=0.7) == None:
-        openDiscord()
-    else:
-        return
-    
-# Open status menu
-def openStatus():
-    moveTo(105, screenHeight-85)
-    click()
-    sleep(0.5)
-    if locateOnScreen('img/states.png', confidence=0.7) == None:
-        openStatus()
-    else:
-        return
-
-# Edit status
-def editStatus():
-    global _status
-    click(205, screenHeight-192)
-    sleep(0.5)
-    if locateOnScreen('img/custom_status.png', confidence=0.7) == None:
-        editStatus()
-    else:
-        hotkey('ctrl', 'a')
-        press('backspace') 
-        write(_status, interval=0.1)
-
-# Open change status screen
-def openClearAfter():
-    try:
-        left, top, width, height = locateOnScreen('img/status.png', confidence=0.8)
-        sleep(0.5)
-        click(left+width/2, top+height/2+45)
-    except:
-        openClearAfter()
-
-# Change clear after to never
-def clearAfterNever():
-    try:
-        left, top, width, height = locateOnScreen('img/status.png', confidence=0.8)
-        sleep(0.5)
-        click(left+width/2, top+height/2+272)
-    except:
-        clearAfterNever()
-
-# Save status
-def saveStatus():
-    try: 
-        left, top, width, height = locateOnScreen('img/save_status.png', confidence=0.8)
-        sleep(0.5)
-        moveTo(left+width/2, top+height/2)
-        sleep(0.2)
-        click()
-    except:
-        saveStatus()
-
-# Update discord status
-def updateStatus():
-    global _status
-    openStatus()
-    editStatus()
-    openClearAfter()
-    clearAfterNever()
-    saveStatus()
-    sleep(0.5)
-    try:
-        hotkey("alt", "tab")
-        left, top, width, height = locateOnScreen('img/vscode_run.png', confidence=0.8)
-        moveTo(left+width/2-7, top+height/2)
-    except:
-        moveTo(screenWidth/2, screenHeight/2-51) # Move to center of screen
-    print()
-    print(f"Status changed to {_status}!")
-
-async def updateStatusLoop():
-    moveTo(105, screenHeight-85)
-    click()
-    moveTo(205, screenHeight-192)
-    click()
-    hotkey('ctrl', 'a')
-    press('backspace') 
-    write(random.choice(statuses))
-    await asyncio.sleep(1)
-    left, top, width, height = locateOnScreen('img/status.png', confidence=0.8)
-    moveTo(left+width/2, top+height/2+45)
-    click()
-    moveTo(left+width/2, top+height/2+272)
-    click()
-    left, top, width, height = locateOnScreen('img/save_status.png', confidence=0.8)
-    moveTo(left+width/2, top+height/2)
-    click()
-    moveTo(screenWidth/2, screenHeight/2-51) # Move to center of screen
-
-# Open spotify
-def openSpotify():
-    left, top, width, height = locateOnScreen('img/spotify.png', confidence=0.7)
-    moveTo(left+width/2, top+height/2)
-    click()
-    
-
-if __name__ == "__main__":
+def main():
     print('''
     -LEGEND-
-    1: Open Discord          a: Update status
+    1: Update discord status          A: Infinite loop          B: One time
     2: Open Spotify
+    3. Play BTD6
     ''')
     operation = input(": ")
-    if operation[0] == "1":
+    if operation == "1":
+        openDiscord()
+    elif len(operation) > 1:
         url = "http://www.kite.com"
         timeout = 5
         try:
             request = requests.get(url, timeout=timeout)
-            openDiscord()
-            if operation[1] == "a":
-                updateStatus()
+            if operation[1].lower() == "a":
+                openDiscord()
+                sleep(1)
+                a = asyncio.get_event_loop()
+                a.create_task(updateDiscordStatusLoop())
+                a.run_forever()
+            else:
+                status = input(": ")
+                openDiscord()
+                sleep(1)
+                updateDiscordStatus(status)
         except (requests.ConnectionError, requests.Timeout) as exception:
-            alert(text='Could not preform these actions', title='No Wifi!', button='OK')
+            pagui.alert(text='Could not preform these actions', title='No Wifi!', button='OK')
     elif operation[0] == "2":
         openSpotify()
+    elif operation[0] == "3":
+        openBTD()
+
+main()
